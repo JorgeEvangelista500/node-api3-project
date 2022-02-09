@@ -5,7 +5,7 @@ const express = require('express');
 const Users = require('./users-model');
 const Posts = require('../posts/posts-model');
 
-const { validateUserId, validateUser } = require('../middleware/middleware')
+const { validateUserId, validateUser, validatePost } = require('../middleware/middleware')
 
 const router = express.Router();
 
@@ -26,30 +26,44 @@ router.post('/', validateUser, (req, res) => {
   // this needs a middleware to check that the request body is valid
   Users.insert(req.body)
   .then(user => {
-    res.status(201).json(user)
+    res.status(200).json(user)
   })
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', validateUserId, validateUser, (req, res) => {
   // RETURN THE FRESHLY UPDATED USER OBJECT
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
+  Users.update(req.params.id, req.body)
+    .then(user => {
+      res.status(200).json(user)
+    })
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', validateUserId, (req, res) => {
   // RETURN THE FRESHLY DELETED USER OBJECT
   // this needs a middleware to verify user id
+  Users.remove(req.user.id)
+   .then(res.json(req.user))
 });
 
-router.get('/:id/posts', (req, res) => {
+router.get('/:id/posts', validateUserId, (req, res) => {
   // RETURN THE ARRAY OF USER POSTS
   // this needs a middleware to verify user id
+  Users.getUserPosts(req.params.id)
+    .then(user => {
+      res.json(user)
+    })
 });
 
-router.post('/:id/posts', (req, res) => {
+router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
   // RETURN THE NEWLY CREATED USER POST
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
+  Posts.insert({text:req.body.text, user_id:req.params.id})
+  .then(post => {
+    res.status(201).json(post)
+  })
 });
 
 // do not forget to export the router
