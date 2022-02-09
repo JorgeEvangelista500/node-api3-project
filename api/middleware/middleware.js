@@ -1,18 +1,19 @@
-const Users = require('../users/users-model')
+const Users = require('../users/users-model');
 
 module.exports = {
   validateUserId,
   validateUser,
-  validatePost
+  validatePost,
 }
+
 function logger(req, res, next) {
   // DO YOUR MAGIC
 }
 
 async function validateUserId(req, res, next) {
   // DO YOUR MAGIC
-  const id = req.params.id;
-  const result = await Users.findById(id)
+  let id = req.params.id;
+  let result = await Users.getById(id)
   if(result == null){
     res.status(404).json({ message: "user not found"})
   } else {
@@ -21,7 +22,7 @@ async function validateUserId(req, res, next) {
   }
 }
 
-async function validateUser(req, res, next) {
+function validateUser(req, res, next) {
   // DO YOUR MAGIC
   if(!req.body.name) {
     res.status(400).json({ message:'missing required name field' })
